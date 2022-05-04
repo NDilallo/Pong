@@ -1,0 +1,19 @@
+
+Missing Pieces (vital):
+
+
+Features to Add:
+    Music? (with option to turn off music on main menu)
+
+    Easy/Medium/Hard selection (ai base speed and reaction time)
+
+    Two player?
+    Frenzy Mode? (ball speed very high, changing colors, chaotic)
+    
+    Unlock system? (for colors/alternate modes/etc)
+    Achievement System?
+
+
+Bugs to Fix:
+    Hitting ball with the top of your player model
+

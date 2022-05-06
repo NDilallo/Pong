@@ -1,0 +1,48 @@
+from pygame.math import Vector2 as vec
+
+#Screen Settings:
+WIDTH, HEIGHT = 640, 480
+FPS = 60
+
+#Color Settings:
+BLACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (208, 22, 22)
+GREEN = (0,128,0)
+BLUE = (0,0,255)
+GRAY = (132, 150, 159)
+PLAYER_COLOR = WHITE
+BALL_COLOR = WHITE
+WALLS_COLOR = WHITE
+
+#Font Settings:
+START_TEXT_SIZE = 30
+START_FONT = 'arial black'
+
+PONG_TITLE_SIZE = 100
+PONG_TEXT_FONT = 'Monoton'
+
+WINS_TEXT_SIZE = 16
+
+SCORE_TEXT_SIZE =  50
+
+SETTINGS_TEXT_SIZE = 30
+
+SMALL_TEXT_SIZE = 12
+MEDIUM_TEXT_SIZE = 20
+
+#Player Settings:
+PLAYER_START_POS = [WIDTH-40, HEIGHT/2-40]
+
+#Ball Settings:
+BALL_START_POS = [WIDTH/2, HEIGHT/2]
+BALL_SIZE = 10
+BALL_START_SPEED = 4
+BALL_START_SPEED_VERT = 0
+BALL_RESPAWN_DELAY = 2000 #milliseconds
+
+#AI Settings
+AI_START_POS = [25, HEIGHT/2-40]
+
+#Game Settings:
+WIN_AMOUNT = 7

@@ -1,5 +1,3 @@
-#yo
-from turtle import fillcolor, position
 import pygame, sys
 from settings import *
 from player_class import *
@@ -22,9 +20,6 @@ class Game:
         self.walls = Walls(self)
         self.ball = Ball(self)
         self.ai.giveBall(self.ball)
-        self.horizontal_hitboxes = [] #Hitboxes oriented sideways ie top bottom walls
-        self.horizontal_hitboxes.extend(self.walls.hitboxVert)
-        self.vert_hitboxes = [self.player.hitbox, self.ai.hitbox]
 
         self.delay = False
         self.won = ''

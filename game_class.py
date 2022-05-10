@@ -357,7 +357,6 @@ class Game:
             self.playing_chaos_settings_update()
             waiting = self.playing_chaos_settings_draw()
 
-            pygame.display.flip()
             self.clock.tick(FPS)
 
         if self.state == 'playing Chaos Game':

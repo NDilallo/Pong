@@ -1,3 +1,4 @@
+from email.mime import base
 import pygame, sys
 from settings import *
 from player_class import *
@@ -19,6 +20,7 @@ class Game:
         self.ai = AI(self, AI_START_POS) 
         self.walls = Walls(self)
         self.ball = Ball(self)
+        self.ball_size = BALL_SIZE
         self.ai.giveBall(self.ball)
 
         self.delay = False
@@ -34,8 +36,10 @@ class Game:
         self.survivalRecord = 0.0
 
     def run(self):
+        first = True
         while self.running:
             if self.state == 'start':
+                first = True
                 self.start_events()
                 self.start_update()
                 self.start_draw()
@@ -52,6 +56,18 @@ class Game:
                 self.playingSolo_events()
                 self.playingSurvival_update()
                 self.playingSurvival_draw()
+            elif self.state == 'playing Chaos':
+                self.playing_chaos_settings_update()
+                self.playing_chaos_settings_draw()
+                settings = self.playing_chaos_settings_events()
+            elif self.state == 'playing Chaos Game':
+                if first:
+                    balls = self.create_balls(settings[0])
+                    first = False
+                    self.winAmount = int(settings[1])
+                self.playingChaos_events()
+                self.playingChaos_update(balls)
+                self.playingChaos_draw(balls)
             elif self.state == 'game over':
                 self.game_over_events()
             else:
@@ -97,6 +113,8 @@ class Game:
                         self.survivalMode = 'OFF'
                     else:
                         self.survivalMode = 'ON'
+                if WIDTH//2-50 <= mouse[0] <= WIDTH//2+50 and HEIGHT//2+180 <= mouse[1] <= HEIGHT//2+205:
+                    self.state = 'playing Chaos'
     
     def start_update(self):
         pass
@@ -117,6 +135,9 @@ class Game:
         pygame.draw.rect(self.screen, WHITE, (WIDTH//2-60, HEIGHT//2+135,120,25))
         self.draw_text('SETTINGS', self.screen, [WIDTH//2, HEIGHT//2+150], 
         SETTINGS_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+        pygame.draw.rect(self.screen, RED, (WIDTH//2-50, HEIGHT//2+180,100,25))
+        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//2+195], 
+        SETTINGS_TEXT_SIZE, WHITE, PONG_TEXT_FONT, centered=True)
 
         pygame.display.update()
 
@@ -197,10 +218,10 @@ class Game:
             self.ai.score += 1
     
     def winCheck(self):
-        if self.player.score == self.winAmount:
+        if self.player.score >= self.winAmount:
             self.state = 'game over'
             return 'player'
-        elif self.ai.score == self.winAmount:
+        elif self.ai.score >= self.winAmount:
             self.state = 'game over'
             return 'ai'
         return ''
@@ -252,8 +273,210 @@ class Game:
                 self.survivalRecord = self.printTime
         pygame.display.update()
 
+######################## PLAYING CHAOS SETTINGS FUNCTIONS #########################################
 
-######################## BALL RESPAWN FUNCTION ###########################################
+    def playing_chaos_settings_events(self):
+
+        base_font = pygame.font.Font(None, 32)
+        waiting = True
+        color_active = pygame.Color('lightskyblue3')
+        color_passive = pygame.Color('gray15')
+
+        user_text_balls = ''
+        active_balls = False
+        input_rect_balls = pygame.Rect(WIDTH//4+150, HEIGHT//3-16, 140, 32)
+        color_balls = color_passive
+
+        user_text_winScore = ''
+        active_winScore = False
+        input_rect_winScore = pygame.Rect(WIDTH//4+150, HEIGHT-HEIGHT//3-16, 140, 32)
+        color_winScore = color_passive
+
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit() #If we click quit, exit program
+                    sys.exit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if input_rect_balls.collidepoint(event.pos):
+                        active_balls = True
+                    else:
+                        active_balls = False
+                    if input_rect_winScore.collidepoint(event.pos):
+                        active_winScore = True
+                    else:
+                        active_winScore = False
+                    mouse = pygame.mouse.get_pos()
+                    if (WIDTH//2-10)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH//2-10)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
+                        self.ball_size = 10
+                    if (WIDTH-WIDTH//3)-MEDIUM_TEXT_SIZE*1.5 <= mouse[0] <= (WIDTH-WIDTH//3)+MEDIUM_TEXT_SIZE*1.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
+                        self.ball_size = 25
+                    if (WIDTH-WIDTH//6)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH-WIDTH//6)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
+                        self.ball_size = 50
+                    
+  
+                if event.type == pygame.KEYDOWN:
+                    if active_balls == True:
+                        # Check for backspace
+                        if event.key == pygame.K_BACKSPACE:
+                            # get text input from 0 to -1 i.e. end.
+                            user_text_balls = user_text_balls[:-1]
+                        # Unicode standard is used for string
+                        # formation
+                        else:
+                            user_text_balls += event.unicode
+
+                    if active_winScore == True:
+                        if event.key == pygame.K_BACKSPACE:
+                            user_text_winScore = user_text_winScore[:-1]
+                        else:
+                            user_text_winScore += event.unicode
+
+            self.screen.fill((0,0,0))
+
+            if active_balls:
+                color_balls = color_active
+            else:
+                color_balls = color_passive
+            if active_winScore:
+                color_winScore = color_active
+            else:
+                color_winScore = color_passive
+            
+            pygame.draw.rect(self.screen, color_balls, input_rect_balls, 2)
+            text_surface = base_font.render(user_text_balls, True, (255, 255, 255))
+            self.screen.blit(text_surface, (input_rect_balls.x+5, input_rect_balls.y+5))
+            input_rect_balls.w = max(100, text_surface.get_width()+10)
+
+            pygame.draw.rect(self.screen, color_winScore, input_rect_winScore, 2)
+            text_surface = base_font.render(user_text_winScore, True, (255, 255, 255))
+            self.screen.blit(text_surface, (input_rect_winScore.x+5, input_rect_winScore.y+5))
+            input_rect_winScore.w = max(100, text_surface.get_width()+10)
+
+            self.playing_chaos_settings_update()
+            waiting = self.playing_chaos_settings_draw()
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+        if self.state == 'playing Chaos Game':
+            return (user_text_balls, user_text_winScore)
+
+
+    def playing_chaos_settings_update(self):
+        pass
+
+    def playing_chaos_settings_draw(self):
+        self.draw_text('NUMBER OF BALLS:', self.screen, [WIDTH//4, HEIGHT//3], 
+            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+        self.draw_text('BALL SIZE:', self.screen, [WIDTH//4, HEIGHT//2],
+            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+        self.draw_text('Score To Win:', self.screen, [WIDTH//4, HEIGHT-HEIGHT//3],
+            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+        
+        small, med, large = False, False, False
+        if self.ball_size == 10:
+            small = True
+        elif self.ball_size == 25:
+            med = True
+        else:
+            large = True
+        self.draw_text(f'SMALL', self.screen, [WIDTH//2-10, HEIGHT//2], 
+        MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect = small)
+        self.draw_text(f'MED', self.screen, [WIDTH-WIDTH//3, HEIGHT//2], 
+        MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect=med)
+        self.draw_text(f'LARGE', self.screen, [WIDTH-WIDTH//6, HEIGHT//2], 
+        MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect=large)
+
+        start_rect = pygame.Rect(WIDTH//2-70, HEIGHT-HEIGHT//5, 140, 32)
+        pygame.draw.rect(self.screen, RED, start_rect, 0)
+        base_font = pygame.font.Font(None, 32)
+        user_text_balls = 'START'
+        text_surface = base_font.render(user_text_balls, True, WHITE)
+        self.screen.blit(text_surface, (start_rect.center[0]-35, start_rect.center[1]-8))
+
+        for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if start_rect.collidepoint(event.pos):
+                        self.state = 'playing Chaos Game'
+                        return False
+        
+        pygame.display.update()
+        return True
+
+######################## PLAYING CHAOS FUNCTIONS #########################################
+
+    def playingChaos_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False #If we click quit, exit program
+            if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                            self.player.move(vec(0,-4))
+                    if event.key == pygame.K_DOWN:
+                            self.player.move(vec(0,4))
+                    if event.key == pygame.K_ESCAPE:
+                        self.reset()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                    self.player.move(vec(0,0))
+
+    def playingChaos_update(self, balls):
+        self.player.update()
+
+        for ball in balls:
+            ball.update()
+            if pygame.Rect.colliderect(ball.hitbox, self.player.hitbox):
+                ball.reflect('player', self.player)
+            elif pygame.Rect.colliderect(ball.hitbox, self.ai.hitbox):
+                ball.reflect('player', self.ai)
+            elif pygame.Rect.colliderect(ball.hitbox, self.walls.hitboxVert[0]) or pygame.Rect.colliderect(ball.hitbox, self.walls.hitboxVert[1]):
+                ball.reflect('wall', self.walls)
+    
+            self.delay = ball.scoreCheck()
+            if self.delay[0] == True:
+                self.incrementScore(self.delay[1])
+                self.won = self.winCheck()
+                if self.won == '':
+                    ball.respawn()
+            ball.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.ai.update()
+
+
+    def playingChaos_draw(self, balls):
+        self.screen.fill(self.color)
+        spawn_height = HEIGHT
+        if self.color != WHITE:
+            dashes = WHITE
+        else:
+            dashes = GRAY
+        while spawn_height >= 10:
+            pygame.draw.rect(self.screen, dashes, [WIDTH/2-5, spawn_height-15, 10, 10])
+            spawn_height -= 20
+        self.player.draw()
+        for ball in balls:
+            ball.draw()
+        self.ai.draw()
+        self.walls.draw()
+        self.draw_text(str(self.player.score), self.screen, [WIDTH-WIDTH//4,10], 
+        SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
+        self.draw_text(str(self.ai.score), self.screen, [WIDTH//4,10], 
+        SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
+        
+        if self.won != '':
+            if self.won == 'ai':
+                self.draw_text('YOU LOSE', self.screen, [WIDTH//2, HEIGHT-330], 
+                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
+            else:
+                self.draw_text('YOU WIN!', self.screen, [WIDTH//2, HEIGHT-330], 
+                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
+                self.playerWins += 1
+            self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
+            [WIDTH//2, HEIGHT//2+50], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+        pygame.display.update()
+
+######################## BALLS ######################################################
 
     def respawnDelay(self):
             time_delay = pygame.time.get_ticks() + BALL_RESPAWN_DELAY
@@ -278,6 +501,21 @@ class Game:
                 self.clock.tick(FPS)
             self.delay = False
             self.ball.respawn()
+    
+    def create_balls(self, num):
+        balls = []
+        for i in range(int(num)):
+            balls.append(Ball(self))
+
+            balls[i].pos = [random.randint(WIDTH//6, WIDTH-WIDTH//6), random.randint(20, HEIGHT-20)]
+            balls[i].dir_horizontal = random.randrange(-1, 2, 2)
+            balls[i].hitbox = pygame.Rect(balls[i].pos[0]-balls[i].size, balls[i].pos[1]-balls[i].size, balls[i].size*2, balls[i].size*2)
+            balls[i].size = self.ball_size
+            balls[i].horizontal_speed = random.randint(2, 10)
+            balls[i].speedSave = balls[i].horizontal_speed
+
+            self.ai.giveBall(balls[i])
+        return balls
 
 
 ######################## GAME OVER FUNCTIONS ###########################################
@@ -296,7 +534,9 @@ class Game:
         self.player.__init__(self, PLAYER_START_POS)
         self.player.color = oldColor
         self.ai.score = 0
+        self.ai.ballPos = [self.ball]
         self.won = ''
+        self.winAmount = WIN_AMOUNT
         if self.ball.pos[0] >= WIDTH//2:
             self.ball.pos[0] -= self.ball.pos[0]-WIDTH//2
             self.ball.pos[1] -= self.ball.pos[1]-HEIGHT/2

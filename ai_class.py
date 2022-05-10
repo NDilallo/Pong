@@ -15,13 +15,22 @@ class AI:
         self.color = PLAYER_COLOR
         
     def update(self):
+        currMin = self.ballPos[0].pos[0]
+        index = 0
+        count = 0
+        for ball in self.ballPos:
+            if ball.pos[0] < currMin:
+                currMin = ball.pos[0]
+                index = count
+            count += 1
+
         if self.pos[1] <= HEIGHT-80 and self.pos[1] >= 0:
-            if self.ballPos[1] > self.center[1]:
+            if self.ballPos[index].pos[1] > self.center[1]:
                 self.pos[1] += 4
                 self.center[1] += 4
                 self.hitbox.left = self.pos[0]
                 self.hitbox.top = self.pos[1]
-            elif self.ballPos[1] < self.center[1]:
+            elif self.ballPos[index].pos[1] < self.center[1]:
                 self.pos[1] += -4
                 self.center[1] += -4
                 self.hitbox.left = self.pos[0]
@@ -37,7 +46,7 @@ class AI:
     
 
     def giveBall(self, givenBall):
-        self.ballPos = givenBall.pos
+        self.ballPos.append(givenBall)
 
     def change_color(self, color):
         self.color = color

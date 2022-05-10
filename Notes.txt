@@ -17,3 +17,9 @@ Features to Add:
 Bugs to Fix:
     Hitting ball with the top of your player model
 
+
+
+
+create a button class. Takes words for the button, color, screen, size?, pos?
+
+Make background change colors in chaos mode

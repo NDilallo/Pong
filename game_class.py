@@ -57,7 +57,6 @@ class Game:
                 self.playingSurvival_update()
                 self.playingSurvival_draw()
             elif self.state == 'playing Chaos':
-                self.playing_chaos_settings_update()
                 self.playing_chaos_settings_draw()
                 settings = self.playing_chaos_settings_events()
             elif self.state == 'playing Chaos Game':
@@ -294,11 +293,11 @@ class Game:
         color_winScore = color_passive
 
         while waiting:
+            self.clock.tick(FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit() #If we click quit, exit program
                     sys.exit()
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if input_rect_balls.collidepoint(event.pos):
                         active_balls = True
@@ -358,7 +357,7 @@ class Game:
             self.playing_chaos_settings_update()
             waiting = self.playing_chaos_settings_draw()
 
-            self.clock.tick(FPS)
+            # self.clock.tick(FPS)
 
         if self.state == 'playing Chaos Game':
             return (user_text_balls, user_text_winScore)

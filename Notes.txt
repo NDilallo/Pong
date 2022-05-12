@@ -8,7 +8,6 @@ Features to Add:
     Easy/Medium/Hard selection (ai base speed and reaction time)
 
     Two player?
-    Frenzy Mode? (ball speed very high, changing colors, chaotic)
     
     Unlock system? (for colors/alternate modes/etc)
     Achievement System?
@@ -22,4 +21,4 @@ Bugs to Fix:
 
 create a button class. Takes words for the button, color, screen, size?, pos?
 
-Make background change colors in chaos mode
+Error handling for invalid ball/win amounts

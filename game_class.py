@@ -65,6 +65,7 @@ class Game:
                     balls = self.create_balls(settings[0])
                     first = False
                     self.winAmount = int(settings[1])
+                    self.color = (20,130,210)
                 self.playingChaos_events()
                 self.playingChaos_update(balls)
                 self.playingChaos_draw(balls)
@@ -440,6 +441,14 @@ class Game:
                 if self.won == '':
                     ball.respawn()
             ball.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+        colors = [random.randint(1, 9) * random.randrange(-1, 2, 2), random.randint(1, 9) * random.randrange(-1, 2, 2), random.randint(1, 9) * random.randrange(-1, 2, 2)]
+        for i in range(3):
+            if self.color[i]+colors[i] >= 255:
+                colors[i] *= -1
+            if self.color[i]+colors[i] <= 0:
+                colors[i] *= - 1
+        self.color = (self.color[0]+colors[0], self.color[1]+colors[1], self.color[2]+colors[2])
         self.ai.update()
 
 

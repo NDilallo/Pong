@@ -35,6 +35,8 @@ class Game:
         self.printTime = 0
         self.survivalRecord = 0.0
 
+        self.draw_error = False
+
     def run(self):
         first = True
         while self.running:
@@ -355,7 +357,7 @@ class Game:
             input_rect_winScore.w = max(100, text_surface.get_width()+10)
 
             self.playing_chaos_settings_update()
-            waiting = self.playing_chaos_settings_draw()
+            waiting = self.playing_chaos_settings_draw(user_text_balls, user_text_winScore)
 
             # self.clock.tick(FPS)
 
@@ -366,13 +368,19 @@ class Game:
     def playing_chaos_settings_update(self):
         pass
 
-    def playing_chaos_settings_draw(self):
+    def playing_chaos_settings_draw(self, numBalls=0, scoreVal=0):
+        if self.draw_error:
+            self.draw_text('Number of Balls and Win Score must be a valid number greater than 0', self.screen, [WIDTH//2, HEIGHT-35], 
+            MEDIUM_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+        
+        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//3//2-10], 
+            PONG_TITLE_SIZE, RED, VIDEO_GAME_FONT, centered=True)
         self.draw_text('NUMBER OF BALLS:', self.screen, [WIDTH//4, HEIGHT//3], 
-            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+            LARGE_TEXT_SIZE, BLUE, SETTINGS_TEXT_FONT, centered=True)
         self.draw_text('BALL SIZE:', self.screen, [WIDTH//4, HEIGHT//2],
-            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+            LARGE_TEXT_SIZE, BLUE, SETTINGS_TEXT_FONT, centered=True)
         self.draw_text('Score To Win:', self.screen, [WIDTH//4, HEIGHT-HEIGHT//3],
-            LARGE_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
+            LARGE_TEXT_SIZE, BLUE, SETTINGS_TEXT_FONT, centered=True)
         
         small, med, large = False, False, False
         if self.ball_size == 10:
@@ -389,7 +397,7 @@ class Game:
         MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect=large)
 
         start_rect = pygame.Rect(WIDTH//2-70, HEIGHT-HEIGHT//5, 140, 32)
-        pygame.draw.rect(self.screen, RED, start_rect, 0)
+        pygame.draw.rect(self.screen, GREEN, start_rect, 0)
         base_font = pygame.font.Font(None, 32)
         user_text_balls = 'START'
         text_surface = base_font.render(user_text_balls, True, WHITE)
@@ -398,8 +406,16 @@ class Game:
         for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if start_rect.collidepoint(event.pos):
-                        self.state = 'playing Chaos Game'
-                        return False
+                        try:
+                            numBalls = int(numBalls)
+                            scoreVal = int(scoreVal)
+                        except:
+                            numBalls, scoreVal = -1, -1
+                        if numBalls <= 0 or scoreVal <= 0:
+                            self.draw_error = True
+                        else:
+                            self.state = 'playing Chaos Game'
+                            return False
         
         pygame.display.update()
         return True

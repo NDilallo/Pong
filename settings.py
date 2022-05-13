@@ -22,6 +22,10 @@ START_FONT = 'arial black'
 PONG_TITLE_SIZE = 100
 PONG_TEXT_FONT = 'Monoton'
 
+SETTINGS_TEXT_FONT = 'Koulen'
+
+VIDEO_GAME_FONT = 'Press Start 2P'
+
 WINS_TEXT_SIZE = 16
 
 SCORE_TEXT_SIZE =  50

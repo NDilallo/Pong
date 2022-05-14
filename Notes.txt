@@ -3,7 +3,7 @@ Missing Pieces (vital):
 
 
 Features to Add:
-    Music? (with option to turn off music on main menu)
+    Music/Sound Effects? (with option to turn off music on main menu)
 
     Easy/Medium/Hard selection (ai base speed and reaction time)
 

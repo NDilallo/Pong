@@ -18,7 +18,5 @@ Bugs to Fix:
 
 
 
-
-create a button class. Takes words for the button, color, screen, size?, pos?
-
-Error handling for invalid ball/win amounts
+Clean up code:
+    create a button class. Takes words for the button, color, screen, size?, pos?

@@ -5,6 +5,7 @@ from player_class import *
 from ball_class import *
 from ai_class import *
 from walls_class import *
+from settings_display import *
 import time
 
 pygame.init()
@@ -22,6 +23,7 @@ class Game:
         self.ball = Ball(self)
         self.ball_size = BALL_SIZE
         self.ai.giveBall(self.ball)
+        self.settings_display = settingsDisplay(self)
 
         self.delay = False
         self.won = ''
@@ -47,8 +49,9 @@ class Game:
                 self.start_draw()
             elif self.state == 'settings':
                 self.settings_events()
-                self.settings_update()
-                self.settings_draw()
+                self.settings_display.settings_draw()
+                # self.settings_update()
+                # self.settings_draw()
             elif self.state == 'playing Solo':
                 self.playingSolo_events()
                 self.playingSolo_update()
@@ -580,200 +583,4 @@ class Game:
             mouse = pygame.mouse.get_pos()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.clickCheck(mouse)
-
-    def clickCheck(self, mouse):
-        #Back button
-        if 10 <= mouse[0] <= 10+WINS_TEXT_SIZE*4 and 5 <= mouse[1] <= 5+WINS_TEXT_SIZE:
-                    self.state = 'start'
-        #Scores to win
-        if WIDTH//4 <= mouse[0] <= WIDTH//4+MEDIUM_TEXT_SIZE and 60 <= mouse[1] <= 60+MEDIUM_TEXT_SIZE:
-                    self.winAmount = 5
-        if WIDTH//2 <= mouse[0] <= WIDTH//2+MEDIUM_TEXT_SIZE and 60 <= mouse[1] <= 60+MEDIUM_TEXT_SIZE:
-                    self.winAmount = 7
-        if WIDTH-(WIDTH//4) <= mouse[0] <= WIDTH-(WIDTH//4)+MEDIUM_TEXT_SIZE*2 and 60 <= mouse[1] <= 60+MEDIUM_TEXT_SIZE:
-                    self.winAmount = 10
-        #Ball Start Speed
-        if WIDTH//4-50 <= mouse[0] <= WIDTH//4-50+MEDIUM_TEXT_SIZE*4 and 220 <= mouse[1] <= 220+MEDIUM_TEXT_SIZE:
-                    self.ball.change_start_speed(2)
-        if WIDTH//2-60 <= mouse[0] <= WIDTH//2-60+MEDIUM_TEXT_SIZE*5 and 220 <= mouse[1] <= 220+MEDIUM_TEXT_SIZE:
-                    self.ball.change_start_speed(4)
-        if WIDTH-(WIDTH//4)-20 <= mouse[0] <= WIDTH-(WIDTH//4)-20+MEDIUM_TEXT_SIZE*4 and 220 <= mouse[1] <= 220+MEDIUM_TEXT_SIZE:
-                    self.ball.change_start_speed(10)
-        #Ball Colors
-        if WIDTH//8 + 175-50 <= mouse[0] <= WIDTH//8 + 175-50+SMALL_TEXT_SIZE*5 and 347 <= mouse[1] <= 347+SMALL_TEXT_SIZE:
-            if self.color != WHITE:
-                self.ball.change_color(WHITE)
-        if WIDTH//8 + 275-50 <= mouse[0] <= WIDTH//8 + 275-50+SMALL_TEXT_SIZE*3 and 347 <= mouse[1] <= 347+SMALL_TEXT_SIZE:
-            if self.color != RED:
-                self.ball.change_color(RED)
-        if WIDTH//8 + 375-50 <= mouse[0] <= WIDTH//8 + 375-50+SMALL_TEXT_SIZE*4 and 347 <= mouse[1] <= 347+SMALL_TEXT_SIZE:
-            if self.color != BLUE:
-                self.ball.change_color(BLUE)
-        if WIDTH//8 + 475-50 <= mouse[0] <= WIDTH//8 + 475-50+SMALL_TEXT_SIZE*5 and 347 <= mouse[1] <= 347+SMALL_TEXT_SIZE:
-            if self.color != GREEN:
-                self.ball.change_color(GREEN)
-        #Paddle Colors
-        if WIDTH//8 + 175-50 <= mouse[0] <= WIDTH//8 + 175-50+SMALL_TEXT_SIZE*5 and 397 <= mouse[1] <= 397+SMALL_TEXT_SIZE:
-            if self.color != WHITE:
-                self.player.change_color(WHITE)
-                self.ai.change_color(WHITE)
-        if WIDTH//8 + 275-50 <= mouse[0] <= WIDTH//8 + 275-50+SMALL_TEXT_SIZE*3 and 397 <= mouse[1] <= 397+SMALL_TEXT_SIZE:
-            if self.color != RED:
-                self.player.change_color(RED)
-                self.ai.change_color(RED)
-        if WIDTH//8 + 375-50 <= mouse[0] <= WIDTH//8 + 375-50+SMALL_TEXT_SIZE*4 and 397 <= mouse[1] <= 397+SMALL_TEXT_SIZE:
-            if self.color != BLUE:
-                self.player.change_color(BLUE)
-                self.ai.change_color(BLUE)
-        if WIDTH//8 + 475-50 <= mouse[0] <= WIDTH//8 + 475-50+SMALL_TEXT_SIZE*5 and 397 <= mouse[1] <= 397+SMALL_TEXT_SIZE:
-            if self.color != GREEN:
-                self.player.change_color(GREEN)
-                self.ai.change_color(GREEN)
-        #Background Colors
-        if WIDTH//8 + 175-50 <= mouse[0] <= WIDTH//8 + 175-50+SMALL_TEXT_SIZE*5 and 447 <= mouse[1] <= 447+SMALL_TEXT_SIZE:
-            if self.ball.color != WHITE and self.player.color != WHITE:
-                self.color = WHITE
-        if WIDTH//8 + 275-50 <= mouse[0] <= WIDTH//8 + 275-50+SMALL_TEXT_SIZE*3 and 447 <= mouse[1] <= 447+SMALL_TEXT_SIZE:
-            if self.ball.color != RED and self.player.color != RED:
-                self.color = RED
-        if WIDTH//8 + 375-50 <= mouse[0] <= WIDTH//8 + 375-50+SMALL_TEXT_SIZE*4 and 447 <= mouse[1] <= 447+SMALL_TEXT_SIZE:
-            if self.ball.color != BLUE and self.player.color != BLUE:
-                self.color = BLUE
-        if WIDTH//8 + 475-50 <= mouse[0] <= WIDTH//8 + 475-50+SMALL_TEXT_SIZE*5 and 447 <= mouse[1] <= 447+SMALL_TEXT_SIZE:
-            if self.ball.color != GREEN and self.player.color != GREEN:
-                self.color = GREEN
-        if WIDTH//8 + 550-50 <= mouse[0] <= WIDTH//8 + 550-50+SMALL_TEXT_SIZE*5 and 447 <= mouse[1] <= 447+SMALL_TEXT_SIZE:
-            self.color = BLACK
-    
-
-    def settings_update(self):
-        pass
-            
-
-    def settings_draw(self):
-        self.screen.fill(BLACK)
-        self.draw_text(f'BACK', self.screen, [10,5], 
-        WINS_TEXT_SIZE, (44, 167, 198), START_FONT)
-
-        self.draw_text('SCORE TO WIN',self.screen, 
-        [WIDTH//2, 20], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
-        scoreFlag = False
-        if self.winAmount == 5:
-            scoreFlag = True
-        self.draw_text(f'5', self.screen, [WIDTH//4, 60], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect=scoreFlag)
-        scoreFlag = False
-        if self.winAmount == 7:
-            scoreFlag = True
-        self.draw_text(f'7', self.screen, [WIDTH//2, 60], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect=scoreFlag)
-        scoreFlag = False
-        if self.winAmount == 10:
-            scoreFlag = True
-        self.draw_text(f'10', self.screen, [WIDTH-(WIDTH//4), 60], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect=scoreFlag)
-        scoreFlag = False
-
-        self.draw_text('BALL START SPEED',self.screen, 
-        [WIDTH//2, 160], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
-        speedFlag = False
-        if self.ball.horizontal_speed == 2:
-            speedFlag = True
-        self.draw_text(f'SLOW', self.screen, [WIDTH//4-50, 220], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect = speedFlag)
-        speedFlag = False
-        if self.ball.horizontal_speed == 4:
-            speedFlag = True
-        self.draw_text(f'MEDIUM', self.screen, [WIDTH//2-60, 220], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect=speedFlag)
-        speedFlag = False
-        if self.ball.horizontal_speed == 10:
-            speedFlag = True
-        self.draw_text(f'FAST', self.screen, [WIDTH-(WIDTH//4)-20, 220], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT, rect= speedFlag)
-        speedFlag = False
-
-        self.draw_text('COLOR SETTINGS',self.screen, 
-        [WIDTH//2, 300], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
-
-        self.draw_text(f'BALL:', self.screen, [WIDTH//9-50, 340], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT)
-        ballColorFlag = False
-        if self.ball.color == WHITE:
-            ballColorFlag = True
-        self.draw_text(f'WHITE', self.screen, [WIDTH//8 + 175-50, 347], 
-        SMALL_TEXT_SIZE, WHITE, START_FONT, rect=ballColorFlag)
-        ballColorFlag = False
-        if self.ball.color == RED:
-            ballColorFlag = True
-        self.draw_text(f'RED', self.screen, [WIDTH//8 + 275-50, 347], 
-        SMALL_TEXT_SIZE, RED, START_FONT, rect=ballColorFlag)
-        ballColorFlag = False
-        if self.ball.color == BLUE:
-            ballColorFlag = True
-        self.draw_text(f'BLUE', self.screen, [WIDTH//8 + 375-50, 347], 
-        SMALL_TEXT_SIZE, BLUE, START_FONT, rect=ballColorFlag)
-        ballColorFlag = False
-        if self.ball.color == GREEN:
-            ballColorFlag = True
-        self.draw_text(f'GREEN', self.screen, [WIDTH//8 + 475-50, 347], 
-        SMALL_TEXT_SIZE, GREEN, START_FONT, rect=ballColorFlag)
-        ballColorFlag = False
-
-        self.draw_text(f'PADDLE:', self.screen, [WIDTH//9-50, 390], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT)
-        paddleColorFlag = False
-        if self.player.color == WHITE:
-            paddleColorFlag = True
-        self.draw_text(f'WHITE', self.screen, [WIDTH//8 + 175-50, 397], 
-        SMALL_TEXT_SIZE, WHITE, START_FONT, rect= paddleColorFlag)
-        paddleColorFlag = False
-        if self.player.color == RED:
-            paddleColorFlag = True
-        self.draw_text(f'RED', self.screen, [WIDTH//8 + 275-50, 397], 
-        SMALL_TEXT_SIZE, RED, START_FONT, rect= paddleColorFlag)
-        paddleColorFlag = False
-        if self.player.color == BLUE:
-            paddleColorFlag = True
-        self.draw_text(f'BLUE', self.screen, [WIDTH//8 + 375-50, 397], 
-        SMALL_TEXT_SIZE, BLUE, START_FONT, rect= paddleColorFlag)
-        paddleColorFlag = False
-        if self.player.color == GREEN:
-            paddleColorFlag = True
-        self.draw_text(f'GREEN', self.screen, [WIDTH//8 + 475-50, 397], 
-        SMALL_TEXT_SIZE, GREEN, START_FONT, rect= paddleColorFlag)
-        paddleColorFlag = False
-
-        self.draw_text(f'BACKGROUND:', self.screen, [WIDTH//9-50, 440], 
-        MEDIUM_TEXT_SIZE, (44, 167, 198), START_FONT)
-        backgroundColorFlag = False
-        if self.color == WHITE:
-            backgroundColorFlag = True
-        self.draw_text(f'WHITE', self.screen, [WIDTH//8 + 175-50, 447], 
-        SMALL_TEXT_SIZE, WHITE, START_FONT, rect= backgroundColorFlag)
-        backgroundColorFlag = False
-        if self.color == RED:
-            backgroundColorFlag = True
-        self.draw_text(f'RED', self.screen, [WIDTH//8 + 275-50, 447], 
-        SMALL_TEXT_SIZE, RED, START_FONT, rect= backgroundColorFlag)
-        backgroundColorFlag = False
-        if self.color == BLUE:
-            backgroundColorFlag = True
-        self.draw_text(f'BLUE', self.screen, [WIDTH//8 + 375-50, 447], 
-        SMALL_TEXT_SIZE, BLUE, START_FONT, rect= backgroundColorFlag)
-        backgroundColorFlag = False
-        if self.color == GREEN:
-            backgroundColorFlag = True
-        self.draw_text(f'GREEN', self.screen, [WIDTH//8 + 475-50, 447], 
-        SMALL_TEXT_SIZE, GREEN, START_FONT, rect= backgroundColorFlag)
-        backgroundColorFlag = False
-        if self.color == BLACK:
-            backgroundColorFlag = True
-        self.draw_text(f'BLACK', self.screen, [WIDTH//8 + 550-50, 447], 
-        SMALL_TEXT_SIZE, GRAY, START_FONT, rect= backgroundColorFlag)
-        backgroundColorFlag = False
-
-        pygame.display.update()
-
-        
+                self.settings_display.clickCheck(mouse)

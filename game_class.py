@@ -559,7 +559,7 @@ class Game:
         self.ai.score = 0
         self.ai.ballPos = [self.ball]
         self.won = ''
-        self.winAmount = WIN_AMOUNT
+        # self.winAmount = WIN_AMOUNT
         if self.ball.pos[0] >= WIDTH//2:
             self.ball.pos[0] -= self.ball.pos[0]-WIDTH//2
             self.ball.pos[1] -= self.ball.pos[1]-HEIGHT/2
@@ -568,7 +568,7 @@ class Game:
             self.ball.pos[1] -= self.ball.pos[1]-HEIGHT/2
         self.ball.hidden = False
         self.ball.vert_speed += -self.ball.vert_speed
-        self.ball.horizontal_speed = BALL_START_SPEED
+        self.ball.horizontal_speed = self.ball.speedSave
 
 ######################### SETTINGS FUNCTIONS ###################################
 

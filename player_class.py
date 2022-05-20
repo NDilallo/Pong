@@ -8,12 +8,12 @@ class Player:
         self.game = game
         self.pos = pos
         self.direction = vec(0,0)
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 15, 80)
-        self.center = [self.pos[0]+7.5, self.pos[1]+40]
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], WIDTH//42.7, HEIGHT//6)
+        self.center = [self.pos[0]+WIDTH//85.4, self.pos[1]+HEIGHT//12]
         self.score = 0
         self.color = PLAYER_COLOR
     def update(self):
-        if self.pos[1] < HEIGHT-80 and self.pos[1] > 0:
+        if self.pos[1] < HEIGHT-HEIGHT//6 and self.pos[1] > 0:
             self.pos += self.direction
             self.center += self.direction
             self.hitbox.left = self.pos[0]
@@ -21,7 +21,7 @@ class Player:
 
     def draw(self):
         pygame.draw.rect(self.game.screen, self.color, 
-        [self.pos[0], self.pos[1], 15, 80])
+        [self.pos[0], self.pos[1], WIDTH//42.7, HEIGHT//6])
 
     def move(self, direction):
         self.direction = direction

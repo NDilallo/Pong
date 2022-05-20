@@ -53,7 +53,7 @@ class Ball:
                 self.pos[1] -= self.pos[1]-HEIGHT/2
         else:
             self.pos = [random.randint(WIDTH//6, WIDTH-WIDTH//6), random.randint(20, HEIGHT-20)]
-            self.vert_speed += -self.vert_speed + random.randint(0, 10)
+            self.vert_speed += -self.vert_speed + random.randint(0, WIDTH//160) #10
             if self.vert_speed != 0:
                 self.dir_vertical = random.randrange(-1, 2, 2)
         
@@ -66,11 +66,11 @@ class Ball:
             # if positive (top half): add to current vertical velocity (upwards)
             if dist > 0:
                 self.dir_vertical = -1
-                self.vert_speed += 1
+                self.vert_speed += HEIGHT//480#1
             # if negative (bottom half): subtract from current vertical velocity (send downwards)
             elif dist < 0:
                 self.dir_vertical = 1
-                self.vert_speed += 1
+                self.vert_speed += HEIGHT//480
             else:
                 self.dir_vertical = random.randrange(-1, 1, 2) #random direction
                 self.vert_speed += self.dir_vertical

@@ -41,9 +41,11 @@ class Game:
 
     def run(self):
         first = True
+        increment_wins = True
         while self.running:
             if self.state == 'start':
                 first = True
+                increment_wins = True
                 self.start_events()
                 self.start_update()
                 self.start_draw()
@@ -74,7 +76,8 @@ class Game:
                 self.playingChaos_update(balls)
                 self.playingChaos_draw(balls)
             elif self.state == 'game over':
-                self.game_over_events()
+                self.game_over_events(increment_wins)
+                increment_wins = False
             else:
                 self.running = False
             self.clock.tick(FPS)
@@ -103,22 +106,25 @@ class Game:
             mouse = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
                 self.running = False #If we click quit, exit program
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: #Press spacebar and game starts
-                if self.survivalMode == 'OFF':
-                    self.state = 'playing Solo'
-                else:
-                    self.state = 'playing Survival'
-                    self.t0 = time.time()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if self.survivalMode == 'OFF':
+                        self.state = 'playing Solo'
+                    else:
+                        self.state = 'playing Survival'
+                        self.t0 = time.time()
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False #Add quit select screen here
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if WIDTH//2-60 <= mouse[0] <= WIDTH//2+60 and HEIGHT//2+135 <= mouse[1] <= HEIGHT//2+160:
+                if WIDTH//2-WIDTH//10.6 <= mouse[0] <= WIDTH//2-WIDTH//10.6+WIDTH//5.3 and HEIGHT//2+HEIGHT//3.5 <= mouse[1] <= HEIGHT//2+HEIGHT//3.5+HEIGHT//19.2:
                     self.state = 'settings'
-                if WIDTH-125 <= mouse[0] <= WIDTH-125+WINS_TEXT_SIZE*13 and 0 <= mouse[1] <= WINS_TEXT_SIZE:
+                if WIDTH-WIDTH//5.12 <= mouse[0] <=WIDTH-WIDTH//5.12+WINS_TEXT_SIZE*13 and 0 <= mouse[1] <= WINS_TEXT_SIZE:
                     if self.survivalMode == 'ON':
                         self.survivalMode = 'OFF'
                     else:
                         self.survivalMode = 'ON'
-                if WIDTH//2-50 <= mouse[0] <= WIDTH//2+50 and HEIGHT//2+180 <= mouse[1] <= HEIGHT//2+205:
+                if WIDTH//2-WIDTH//12.8 <= mouse[0] <= WIDTH//2-WIDTH//12.8+WIDTH//6.4 and HEIGHT//2+HEIGHT//2.65 <= mouse[1] <= HEIGHT//2+HEIGHT//2.65+HEIGHT//19.2:
                     self.state = 'playing Chaos'
     
     def start_update(self):
@@ -126,22 +132,22 @@ class Game:
 
     def start_draw(self):
         self.screen.fill(BLACK)
-        self.draw_text('PONG', self.screen, [WIDTH//2, HEIGHT-330], 
+        self.draw_text('PONG', self.screen, [WIDTH//2, HEIGHT//3], #HEIGHT-330
         PONG_TITLE_SIZE, WHITE, PONG_TEXT_FONT, centered=True, rect=True)
         self.draw_text('PUSH SPACEBAR TO BEGIN',self.screen, 
-        [WIDTH//2, HEIGHT//2+50], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+        [WIDTH//2, HEIGHT//2+HEIGHT//9.6], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
         self.draw_text(f'WINS: {self.playerWins}', self.screen, [4,0], 
         WINS_TEXT_SIZE, (44, 167, 198), START_FONT)
-        self.draw_text(f'Survival Record: {round(self.survivalRecord, 2)}', self.screen, [4,20], 
+        self.draw_text(f'Survival Record: {round(self.survivalRecord, 2)}', self.screen, [4,HEIGHT//24], 
         WINS_TEXT_SIZE, (44, 167, 198), START_FONT)
-        self.draw_text(f'Survival: {self.survivalMode}', self.screen, [WIDTH-125,0], 
+        self.draw_text(f'Survival: {self.survivalMode}', self.screen, [WIDTH-WIDTH//5.12,0], 
         WINS_TEXT_SIZE, (44, 167, 198), START_FONT)
 
-        pygame.draw.rect(self.screen, WHITE, (WIDTH//2-60, HEIGHT//2+135,120,25))
-        self.draw_text('SETTINGS', self.screen, [WIDTH//2, HEIGHT//2+150], 
+        pygame.draw.rect(self.screen, WHITE, (WIDTH//2-WIDTH//10.6, HEIGHT//2+HEIGHT//3.5,WIDTH//5.3,HEIGHT//19.2))
+        self.draw_text('SETTINGS', self.screen, [WIDTH//2, HEIGHT//2+HEIGHT//3.2], 
         SETTINGS_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
-        pygame.draw.rect(self.screen, RED, (WIDTH//2-50, HEIGHT//2+180,100,25))
-        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//2+195], 
+        pygame.draw.rect(self.screen, RED, (WIDTH//2-WIDTH//12.8, HEIGHT//2+HEIGHT//2.65,WIDTH//6.4,HEIGHT//19.2))
+        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//2+HEIGHT//2.46], 
         SETTINGS_TEXT_SIZE, WHITE, PONG_TEXT_FONT, centered=True)
 
         pygame.display.update()
@@ -154,9 +160,9 @@ class Game:
                 self.running = False #If we click quit, exit program
             if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                            self.player.move(vec(0,-4))
+                            self.player.move(vec(0,-HEIGHT//120))
                     if event.key == pygame.K_DOWN:
-                            self.player.move(vec(0,4))
+                            self.player.move(vec(0,HEIGHT//120))
                     if event.key == pygame.K_ESCAPE:
                         self.reset()
             if event.type == pygame.KEYUP:
@@ -191,9 +197,9 @@ class Game:
             dashes = WHITE
         else:
             dashes = GRAY
-        while spawn_height >= 10:
-            pygame.draw.rect(self.screen, dashes, [WIDTH/2-5, spawn_height-15, 10, 10])
-            spawn_height -= 20
+        while spawn_height >= HEIGHT//48:
+            pygame.draw.rect(self.screen, dashes, [WIDTH/2-WIDTH//128, spawn_height-HEIGHT//32, WIDTH//64, WIDTH//64])
+            spawn_height -= HEIGHT//24
         self.player.draw()
         self.ball.draw()
         self.ai.draw()
@@ -202,17 +208,7 @@ class Game:
         SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
         self.draw_text(str(self.ai.score), self.screen, [WIDTH//4,10], 
         SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
-        
-        if self.won != '':
-            if self.won == 'ai':
-                self.draw_text('YOU LOSE', self.screen, [WIDTH//2, HEIGHT-330], 
-                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
-            else:
-                self.draw_text('YOU WIN!', self.screen, [WIDTH//2, HEIGHT-330], 
-                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
-                self.playerWins += 1
-            self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
-            [WIDTH//2, HEIGHT//2+50], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+
         pygame.display.update()
 
     
@@ -261,19 +257,19 @@ class Game:
             dashes = WHITE
         else:
             dashes = GRAY
-        while spawn_height >= 10:
-            pygame.draw.rect(self.screen, dashes, [WIDTH/2-5, spawn_height-15, 10, 10])
-            spawn_height -= 20
+        while spawn_height >= HEIGHT//48:
+            pygame.draw.rect(self.screen, dashes, [WIDTH/2-WIDTH//128, spawn_height-HEIGHT//32, WIDTH//64, WIDTH//64])
+            spawn_height -= HEIGHT//24
         self.player.draw()
         self.ball.draw()
         self.ai.draw()
         self.walls.draw()
 
         if self.state == 'game over':
-            self.draw_text('GAME OVER', self.screen, [WIDTH//2, HEIGHT-330], 
+            self.draw_text('GAME OVER', self.screen, [WIDTH//2, HEIGHT-HEIGHT//1.45], 
             PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
             self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
-            [WIDTH//2, HEIGHT//2+50], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+            [WIDTH//2, HEIGHT//2+HEIGHT//9.6], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
             if self.printTime > self.survivalRecord:
                 self.survivalRecord = self.printTime
         pygame.display.update()
@@ -282,19 +278,19 @@ class Game:
 
     def playing_chaos_settings_events(self):
 
-        base_font = pygame.font.Font(None, 32)
+        base_font = pygame.font.Font(None, WIDTH//20) #32
         waiting = True
         color_active = pygame.Color('lightskyblue3')
         color_passive = pygame.Color('gray15')
 
         user_text_balls = ''
         active_balls = False
-        input_rect_balls = pygame.Rect(WIDTH//4+150, HEIGHT//3-16, 140, 32)
+        input_rect_balls = pygame.Rect(WIDTH//4+WIDTH//4.3, HEIGHT//3-HEIGHT//30, WIDTH//4.57, HEIGHT//15)
         color_balls = color_passive
 
         user_text_winScore = ''
         active_winScore = False
-        input_rect_winScore = pygame.Rect(WIDTH//4+150, HEIGHT-HEIGHT//3-16, 140, 32)
+        input_rect_winScore = pygame.Rect(WIDTH//4+WIDTH//6, HEIGHT-HEIGHT//3-HEIGHT//30, WIDTH//4.57, HEIGHT//15)
         color_winScore = color_passive
 
         while waiting:
@@ -313,12 +309,12 @@ class Game:
                     else:
                         active_winScore = False
                     mouse = pygame.mouse.get_pos()
-                    if (WIDTH//2-10)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH//2-10)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
-                        self.ball_size = 10
+                    if (WIDTH//2-WIDTH//64)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH//2-WIDTH//64)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
+                        self.ball_size = (WIDTH+HEIGHT)//112
                     if (WIDTH-WIDTH//3)-MEDIUM_TEXT_SIZE*1.5 <= mouse[0] <= (WIDTH-WIDTH//3)+MEDIUM_TEXT_SIZE*1.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
-                        self.ball_size = 25
+                        self.ball_size = (WIDTH+HEIGHT)//44.8
                     if (WIDTH-WIDTH//6)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH-WIDTH//6)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
-                        self.ball_size = 50
+                        self.ball_size = (WIDTH+HEIGHT)//22.4
                     
   
                 if event.type == pygame.KEYDOWN:
@@ -337,7 +333,11 @@ class Game:
                             user_text_winScore = user_text_winScore[:-1]
                         else:
                             user_text_winScore += event.unicode
-
+                    if event.key == pygame.K_ESCAPE:
+                        self.state = 'start'
+                        return
+            
+            
             self.screen.fill((0,0,0))
 
             if active_balls:
@@ -352,12 +352,12 @@ class Game:
             pygame.draw.rect(self.screen, color_balls, input_rect_balls, 2)
             text_surface = base_font.render(user_text_balls, True, (255, 255, 255))
             self.screen.blit(text_surface, (input_rect_balls.x+5, input_rect_balls.y+5))
-            input_rect_balls.w = max(100, text_surface.get_width()+10)
+            input_rect_balls.w = max(300, text_surface.get_width()+10)
 
             pygame.draw.rect(self.screen, color_winScore, input_rect_winScore, 2)
             text_surface = base_font.render(user_text_winScore, True, (255, 255, 255))
             self.screen.blit(text_surface, (input_rect_winScore.x+5, input_rect_winScore.y+5))
-            input_rect_winScore.w = max(100, text_surface.get_width()+10)
+            input_rect_winScore.w = max(300, text_surface.get_width()+10)
 
             self.playing_chaos_settings_update()
             waiting = self.playing_chaos_settings_draw(user_text_balls, user_text_winScore)
@@ -373,10 +373,10 @@ class Game:
 
     def playing_chaos_settings_draw(self, numBalls=0, scoreVal=0):
         if self.draw_error:
-            self.draw_text('Number of Balls and Win Score must be a valid number greater than 0', self.screen, [WIDTH//2, HEIGHT-35], 
+            self.draw_text('Number of Balls and Win Score must be a valid number greater than 0', self.screen, [WIDTH//2, HEIGHT-HEIGHT//13.7], 
             MEDIUM_TEXT_SIZE, RED, PONG_TEXT_FONT, centered=True)
         
-        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//3//2-10], 
+        self.draw_text('CHAOS', self.screen, [WIDTH//2, HEIGHT//6-HEIGHT//48], 
             PONG_TITLE_SIZE, RED, VIDEO_GAME_FONT, centered=True)
         self.draw_text('NUMBER OF BALLS:', self.screen, [WIDTH//4, HEIGHT//3], 
             LARGE_TEXT_SIZE, BLUE, SETTINGS_TEXT_FONT, centered=True)
@@ -386,25 +386,25 @@ class Game:
             LARGE_TEXT_SIZE, BLUE, SETTINGS_TEXT_FONT, centered=True)
         
         small, med, large = False, False, False
-        if self.ball_size == 10:
+        if self.ball_size == (WIDTH+HEIGHT)//112:
             small = True
-        elif self.ball_size == 25:
+        elif self.ball_size == (WIDTH+HEIGHT)//44.8:
             med = True
         else:
             large = True
-        self.draw_text(f'SMALL', self.screen, [WIDTH//2-10, HEIGHT//2], 
+        self.draw_text(f'SMALL', self.screen, [WIDTH//2-WIDTH//64, HEIGHT//2], 
         MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect = small)
         self.draw_text(f'MED', self.screen, [WIDTH-WIDTH//3, HEIGHT//2], 
         MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect=med)
         self.draw_text(f'LARGE', self.screen, [WIDTH-WIDTH//6, HEIGHT//2], 
         MEDIUM_TEXT_SIZE, WHITE, START_FONT, centered=True, rect=large)
 
-        start_rect = pygame.Rect(WIDTH//2-70, HEIGHT-HEIGHT//5, 140, 32)
+        start_rect = pygame.Rect(WIDTH//2-WIDTH//9.1, HEIGHT-HEIGHT//5, WIDTH//4.57, HEIGHT//15)
         pygame.draw.rect(self.screen, GREEN, start_rect, 0)
-        base_font = pygame.font.Font(None, 32)
+        base_font = pygame.font.Font(None, WIDTH//20) #32
         user_text_balls = 'START'
         text_surface = base_font.render(user_text_balls, True, WHITE)
-        self.screen.blit(text_surface, (start_rect.center[0]-35, start_rect.center[1]-8))
+        self.screen.blit(text_surface, (start_rect.center[0]-WIDTH//18.3, start_rect.center[1]-HEIGHT//40))
 
         for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -489,17 +489,7 @@ class Game:
         SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
         self.draw_text(str(self.ai.score), self.screen, [WIDTH//4,10], 
         SCORE_TEXT_SIZE, (44, 167, 198), START_FONT)
-        
-        if self.won != '':
-            if self.won == 'ai':
-                self.draw_text('YOU LOSE', self.screen, [WIDTH//2, HEIGHT-330], 
-                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
-            else:
-                self.draw_text('YOU WIN!', self.screen, [WIDTH//2, HEIGHT-330], 
-                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
-                self.playerWins += 1
-            self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
-            [WIDTH//2, HEIGHT//2+50], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+
         pygame.display.update()
 
 ######################## BALLS ######################################################
@@ -533,11 +523,11 @@ class Game:
         for i in range(int(num)):
             balls.append(Ball(self))
 
-            balls[i].pos = [random.randint(WIDTH//6, WIDTH-WIDTH//6), random.randint(20, HEIGHT-20)]
+            balls[i].pos = [random.randint(WIDTH//6, WIDTH-WIDTH//6), random.randint(HEIGHT//24, HEIGHT-HEIGHT//24)]
             balls[i].dir_horizontal = random.randrange(-1, 2, 2)
             balls[i].hitbox = pygame.Rect(balls[i].pos[0]-balls[i].size, balls[i].pos[1]-balls[i].size, balls[i].size*2, balls[i].size*2)
             balls[i].size = self.ball_size
-            balls[i].horizontal_speed = random.randint(2, 10)
+            balls[i].horizontal_speed = random.randint(WIDTH//320, WIDTH//64)
             balls[i].speedSave = balls[i].horizontal_speed
 
             self.ai.giveBall(balls[i])
@@ -546,12 +536,24 @@ class Game:
 
 ######################## GAME OVER FUNCTIONS ###########################################
 
-    def game_over_events(self):
+    def game_over_events(self, increment_wins):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE: #Press spacebar and game starts
                 self.reset()
+        if self.won != '':
+            if self.won == 'ai':
+                self.draw_text('YOU LOSE', self.screen, [WIDTH//2, HEIGHT-HEIGHT//1.45], 
+                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
+            else:
+                self.draw_text('YOU WIN!', self.screen, [WIDTH//2, HEIGHT-HEIGHT//1.45], 
+                PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
+                if increment_wins:
+                    self.playerWins += 1
+            self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
+            [WIDTH//2, HEIGHT//2+HEIGHT//12.8], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
+        pygame.display.update()
     
     def reset(self):
         self.delay = False
@@ -580,7 +582,10 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False #If we click quit, exit program
-            mouse = pygame.mouse.get_pos()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                        self.state = 'start'
 
+            mouse = pygame.mouse.get_pos()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.settings_display.clickCheck(mouse)

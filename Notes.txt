@@ -15,8 +15,11 @@ Features to Add:
 
 Bugs to Fix:
     Hitting ball with the top of your player model
-
+    Ball stuck in ceiling/floor
 
 
 Clean up code:
     create a button class. Takes words for the button, color, screen, size?, pos?
+
+
+Escape button on title screen either closes game or opens prompt to close game

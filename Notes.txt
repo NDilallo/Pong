@@ -3,7 +3,7 @@ Missing Pieces (vital):
 
 
 Features to Add:
-    Music/Sound Effects? (with option to turn off music on main menu)
+    Music/Sound Effects***? (with option to turn off music on main menu)
 
     Easy/Medium/Hard selection (ai base speed and reaction time)
 
@@ -11,6 +11,8 @@ Features to Add:
     
     Unlock system? (for colors/alternate modes/etc)
     Achievement System?
+
+    Escape button on title screen either closes game or opens prompt to close game***
 
 
 Bugs to Fix:
@@ -20,6 +22,3 @@ Bugs to Fix:
 
 Clean up code:
     create a button class. Takes words for the button, color, screen, size?, pos?
-
-
-Escape button on title screen either closes game or opens prompt to close game

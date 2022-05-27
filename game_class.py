@@ -1,4 +1,3 @@
-from email.mime import base
 import pygame, sys
 from settings import *
 from player_class import *
@@ -38,17 +37,21 @@ class Game:
         self.survivalRecord = 0.0
 
         self.draw_error = False
+        self.sound_type = MEME_SOUNDS
 
     def run(self):
         first = True
         increment_wins = True
+        play_sound = True
+        rects = None
         while self.running:
             if self.state == 'start':
                 first = True
                 increment_wins = True
-                self.start_events()
+                play_sound = True
+                self.start_events(rects)
                 self.start_update()
-                self.start_draw()
+                rects = self.start_draw()
             elif self.state == 'settings':
                 self.settings_events()
                 self.settings_display.settings_draw()
@@ -61,7 +64,7 @@ class Game:
             elif self.state == 'playing Survival':
                 self.printTime = time.time() - self.t0
                 self.playingSolo_events()
-                self.playingSurvival_update()
+                first = self.playingSurvival_update(first)
                 self.playingSurvival_draw()
             elif self.state == 'playing Chaos':
                 self.playing_chaos_settings_draw()
@@ -76,8 +79,9 @@ class Game:
                 self.playingChaos_update(balls)
                 self.playingChaos_draw(balls)
             elif self.state == 'game over':
-                self.game_over_events(increment_wins)
+                self.game_over_events(increment_wins, play_sound)
                 increment_wins = False
+                play_sound = False
             else:
                 self.running = False
             self.clock.tick(FPS)
@@ -101,7 +105,7 @@ class Game:
         
 ########################### INTRO FUNCTIONS ####################################
     
-    def start_events(self):
+    def start_events(self, soundRects = None):
         for event in pygame.event.get():
             mouse = pygame.mouse.get_pos()
             if event.type == pygame.QUIT:
@@ -126,12 +130,52 @@ class Game:
                         self.survivalMode = 'ON'
                 if WIDTH//2-WIDTH//12.8 <= mouse[0] <= WIDTH//2-WIDTH//12.8+WIDTH//6.4 and HEIGHT//2+HEIGHT//2.65 <= mouse[1] <= HEIGHT//2+HEIGHT//2.65+HEIGHT//19.2:
                     self.state = 'playing Chaos'
+                if soundRects != None:
+                    if soundRects[0].collidepoint(event.pos):
+                        self.sound_type = 'normal'
+                    elif soundRects[1].collidepoint(event.pos):
+                        self.sound_type = 'off'
+                    elif soundRects[2].collidepoint(event.pos):
+                        self.sound_type = 'meme'
+                
     
     def start_update(self):
         pass
 
     def start_draw(self):
         self.screen.fill(BLACK)
+
+        sound_img = pygame.image.load('Pong\Images\sound3.png')
+        sound_img = pygame.transform.rotozoom(sound_img, 0, .3)
+        self.screen.blit(sound_img, (WIDTH//64, HEIGHT-sound_img.get_height()-HEIGHT//48))
+        normalRect = pygame.Rect(WIDTH//170, HEIGHT-sound_img.get_height()-HEIGHT//33, sound_img.get_width()+53*WIDTH//5440*2, HEIGHT//12)
+        if self.sound_type == 'normal':
+            pygame.draw.rect(self.screen, (0, 100, 255), normalRect, 3) #Outline width = 3, 53*WIDTH//5440*2 = WIDTH//64 - WIDTH//170
+
+        sound_off_img = pygame.image.load('Pong\Images\soundOff.png')
+        sound_off_img = pygame.transform.rotozoom(sound_off_img, 0, .115)
+        self.screen.blit(sound_off_img, (WIDTH//23+sound_img.get_width(), HEIGHT-sound_off_img.get_height()-HEIGHT//48))
+        offRect = pygame.Rect(WIDTH//15, HEIGHT-sound_img.get_height()-HEIGHT//33, sound_off_img.get_width()+53*WIDTH//5440*2, HEIGHT//12)
+        if self.sound_type == 'off':
+            pygame.draw.rect(self.screen, (0, 100, 255), offRect, 3)
+        
+        question_mark_img = pygame.image.load('Pong\Images\questionMark.png')
+        question_mark_img = pygame.transform.rotozoom(question_mark_img, 0, .4)
+        self.screen.blit(question_mark_img, (WIDTH//10+sound_off_img.get_width(), HEIGHT-question_mark_img.get_height()-HEIGHT//48))
+        memeRect = pygame.Rect(WIDTH//7, HEIGHT-sound_img.get_height()-HEIGHT//33, sound_off_img.get_width()+53*WIDTH//5440*2, HEIGHT//12)
+        if self.sound_type == 'meme':
+            #pygame.draw.rect(self.screen, (0, 100, 255), (WIDTH//7, HEIGHT-sound_img.get_height()-HEIGHT//33, sound_off_img.get_width()+53*WIDTH//5440*2, HEIGHT//12), 3)
+            pygame.draw.rect(self.screen, (0, 100, 255), memeRect, 3)
+        
+        # for event in pygame.event.get():
+        #     if event.type == pygame.MOUSEBUTTONDOWN:
+        #         if normalRect.collidepoint(event.pos):
+        #             self.sound_type = 'normal'
+        #         elif offRect.collidepoint(event.pos):
+        #             self.sound_type = 'off'
+        #         elif memeRect.collidepoint(event.pos):
+        #             self.sound_type = 'meme'
+
         self.draw_text('PONG', self.screen, [WIDTH//2, HEIGHT//3], #HEIGHT-330
         PONG_TITLE_SIZE, WHITE, PONG_TEXT_FONT, centered=True, rect=True)
         self.draw_text('PUSH SPACEBAR TO BEGIN',self.screen, 
@@ -151,6 +195,8 @@ class Game:
         SETTINGS_TEXT_SIZE, WHITE, PONG_TEXT_FONT, centered=True)
 
         pygame.display.update()
+
+        return [normalRect, offRect, memeRect]
 
 ############################# PLAYING SOLO FUNCTIONS ###############################
 
@@ -184,6 +230,8 @@ class Game:
     
         self.delay = self.ball.scoreCheck()
         if self.delay[0] == True:
+            self.ai.pos = AI_START_POS
+            self.ai.center = [self.ai.pos[0]+WIDTH//85.4, self.ai.pos[1]+HEIGHT//12]
             self.incrementScore(self.delay[1])
             self.won = self.winCheck()
             if self.won == '':
@@ -230,7 +278,7 @@ class Game:
 
 ########################## Playing Survival Functions #######################################
 
-    def playingSurvival_update(self):
+    def playingSurvival_update(self, first):
         self.player.update()
         self.ball.update()
         self.ai.update()
@@ -247,6 +295,11 @@ class Game:
             self.state = 'game over'
         if self.delay[1] == 'player':
             self.respawnDelay()
+
+        if self.printTime > self.survivalRecord and self.survivalRecord != 0 and first == True:
+            soundEffects.soundEffect(self, 'passHighScore')
+            return False
+        return True
 
     def playingSurvival_draw(self):
         self.screen.fill(self.color)
@@ -279,7 +332,7 @@ class Game:
     def playing_chaos_settings_events(self):
 
         base_font = pygame.font.Font(None, WIDTH//20) #32
-        waiting = True
+        waiting = [True, None]
         color_active = pygame.Color('lightskyblue3')
         color_passive = pygame.Color('gray15')
 
@@ -293,7 +346,7 @@ class Game:
         input_rect_winScore = pygame.Rect(WIDTH//4+WIDTH//6, HEIGHT-HEIGHT//3-HEIGHT//30, WIDTH//4.57, HEIGHT//15)
         color_winScore = color_passive
 
-        while waiting:
+        while waiting[0]:
             self.clock.tick(FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -308,6 +361,21 @@ class Game:
                         active_winScore = True
                     else:
                         active_winScore = False
+                    if waiting[1].collidepoint(event.pos):
+                        numBalls = user_text_balls
+                        scoreVal = user_text_winScore
+                        try:
+                            numBalls = int(numBalls)
+                            scoreVal = int(scoreVal)
+                        except:
+                            numBalls, scoreVal = -1, -1
+                        if numBalls <= 0 or scoreVal <= 0:
+                            self.draw_error = True
+                        else:
+                            self.state = 'playing Chaos Game'
+                            return (user_text_balls, user_text_winScore)
+
+
                     mouse = pygame.mouse.get_pos()
                     if (WIDTH//2-WIDTH//64)-MEDIUM_TEXT_SIZE*2.5 <= mouse[0] <= (WIDTH//2-WIDTH//64)+MEDIUM_TEXT_SIZE*2.5 and HEIGHT//2-MEDIUM_TEXT_SIZE <= mouse[1] <= HEIGHT//2+MEDIUM_TEXT_SIZE:
                         self.ball_size = (WIDTH+HEIGHT)//112
@@ -362,7 +430,6 @@ class Game:
             self.playing_chaos_settings_update()
             waiting = self.playing_chaos_settings_draw(user_text_balls, user_text_winScore)
 
-            # self.clock.tick(FPS)
 
         if self.state == 'playing Chaos Game':
             return (user_text_balls, user_text_winScore)
@@ -405,23 +472,9 @@ class Game:
         user_text_balls = 'START'
         text_surface = base_font.render(user_text_balls, True, WHITE)
         self.screen.blit(text_surface, (start_rect.center[0]-WIDTH//18.3, start_rect.center[1]-HEIGHT//40))
-
-        for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if start_rect.collidepoint(event.pos):
-                        try:
-                            numBalls = int(numBalls)
-                            scoreVal = int(scoreVal)
-                        except:
-                            numBalls, scoreVal = -1, -1
-                        if numBalls <= 0 or scoreVal <= 0:
-                            self.draw_error = True
-                        else:
-                            self.state = 'playing Chaos Game'
-                            return False
         
         pygame.display.update()
-        return True
+        return [True, start_rect]
 
 ######################## PLAYING CHAOS FUNCTIONS #########################################
 
@@ -431,9 +484,9 @@ class Game:
                 self.running = False #If we click quit, exit program
             if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                            self.player.move(vec(0,-4))
+                            self.player.move(vec(0,-HEIGHT//120))
                     if event.key == pygame.K_DOWN:
-                            self.player.move(vec(0,4))
+                            self.player.move(vec(0,HEIGHT//120))
                     if event.key == pygame.K_ESCAPE:
                         self.reset()
             if event.type == pygame.KEYUP:
@@ -525,8 +578,8 @@ class Game:
 
             balls[i].pos = [random.randint(WIDTH//6, WIDTH-WIDTH//6), random.randint(HEIGHT//24, HEIGHT-HEIGHT//24)]
             balls[i].dir_horizontal = random.randrange(-1, 2, 2)
-            balls[i].hitbox = pygame.Rect(balls[i].pos[0]-balls[i].size, balls[i].pos[1]-balls[i].size, balls[i].size*2, balls[i].size*2)
             balls[i].size = self.ball_size
+            balls[i].hitbox = pygame.Rect(balls[i].pos[0]-balls[i].size, balls[i].pos[1]-balls[i].size, balls[i].size*2, balls[i].size*2)
             balls[i].horizontal_speed = random.randint(WIDTH//320, WIDTH//64)
             balls[i].speedSave = balls[i].horizontal_speed
 
@@ -536,7 +589,7 @@ class Game:
 
 ######################## GAME OVER FUNCTIONS ###########################################
 
-    def game_over_events(self, increment_wins):
+    def game_over_events(self, increment_wins, playSound):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -544,6 +597,8 @@ class Game:
                 self.reset()
         if self.won != '':
             if self.won == 'ai':
+                if playSound:
+                    soundEffects.soundEffect(self, 'aiWin')
                 self.draw_text('YOU LOSE', self.screen, [WIDTH//2, HEIGHT-HEIGHT//1.45], 
                 PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
             else:
@@ -551,6 +606,7 @@ class Game:
                 PONG_TITLE_SIZE, RED, PONG_TEXT_FONT, centered=True)
                 if increment_wins:
                     self.playerWins += 1
+                    soundEffects.soundEffect(self, 'playerWin')
             self.draw_text('PUSH SPACEBAR TO EXIT',self.screen, 
             [WIDTH//2, HEIGHT//2+HEIGHT//12.8], START_TEXT_SIZE, (170, 132, 58), START_FONT, centered=True)
         pygame.display.update()
@@ -574,6 +630,8 @@ class Game:
         self.ball.hidden = False
         self.ball.vert_speed += -self.ball.vert_speed
         self.ball.horizontal_speed = self.ball.speedSave
+        if self.color != RED and self.color != BLUE and self.color != GREEN and self.color != WHITE:
+            self.color = BLACK
 
 ######################### SETTINGS FUNCTIONS ###################################
 

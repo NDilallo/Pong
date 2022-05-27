@@ -51,3 +51,4 @@ AI_START_POS = [WIDTH//25.6, HEIGHT/2-HEIGHT//12]
 
 #Game Settings:
 WIN_AMOUNT = 7
+MEME_SOUNDS = 'normal'

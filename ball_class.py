@@ -1,6 +1,7 @@
 import pygame
 from settings import *
 import random
+import soundEffects
 
 
 class Ball:
@@ -32,9 +33,11 @@ class Ball:
     def scoreCheck(self):
         if self.pos[0] > WIDTH:
             self.hidden = True
+            soundEffects.soundEffect(self.game, 'aiScore')
             return [True, 'ai']
         elif self.pos[0] < 0:
             self.hidden = True
+            soundEffects.soundEffect(self.game, 'playerScore')
             return [True, 'player']
         return [False, '']
 
@@ -61,6 +64,7 @@ class Ball:
 
     def reflect(self, type, object):
         if type == 'player':
+            soundEffects.soundEffect(self.game, 'paddleCollide')
             # Determine distance from center of player/ai (center - ballpos)
             dist = object.center[1] - self.pos[1]
             # if positive (top half): add to current vertical velocity (upwards)
@@ -76,62 +80,19 @@ class Ball:
                 self.vert_speed += self.dir_vertical
             # reverse and increase horizontal velocity
             self.dir_horizontal *= -1
-            self.horizontal_speed += 1
+            self.horizontal_speed += WIDTH//640
         elif type == 'wall':
+            soundEffects.soundEffect(self.game, 'wallCollide')
             # Reverse vertical direction
             self.dir_vertical *= -1
             # Move it away from the wall to prevent it getting stuck
             if self.dir_vertical > 0:
-                self.pos[1] += 20
+                self.pos[1] += HEIGHT//24
             elif self.dir_vertical < 0:
-                self.pos[1] -= 20
+                self.pos[1] -= HEIGHT//24
 
     def change_start_speed(self, speed):
         self.horizontal_speed = speed
         self.speedSave = speed
     def change_color(self, color):
         self.color = color
-
-
-
-
-
-
-    #     if collision_type=='horizontal': #top or bottom wall
-    #         self.dir_vertical *= -1
-    #         if self.pos[1] < 10:
-    #             self.pos[1] += 10
-    #         else:
-    #             self.pos[1] -= 10
-
-    #     if collision_type=='vertical': #player or ai
-    #         if self.dir_vertical==0:
-    #             self.dir_vertical=1
-    #         centerDist = self.pos[1]-object.center[1]
-    #         self.vert_speed += centerDist/10
-    #         self.dir_horizontal = self.dir_horizontal*-1
-
-
-    # def collisionCheck(self):
-    #     if self.hitbox.colliderect(self.player.hitbox):
-    #         self.pos[0] -= 4
-    #         self.dir = self.dir*-1
-    #         centerDist = self.pos[1]-self.player.center[1]
-    #         self.vertForce += centerDist/3.5
-    #     if self.hitbox.colliderect(self.ai.hitbox):
-    #         self.pos[0] += 4
-    #         self.dir = self.dir*-1
-    #         centerDist = self.pos[1]-self.ai.center[1]
-    #         self.vertForce += centerDist
-    #     for i in range(2):
-    #         if self.hitbox.colliderect(self.walls.hitboxVert[i]):
-    #             self.pos[1] += self.dir*4
-    #             self.dir = self.dir*-1
-    #             centerDist = self.pos[1]-self.ai.center[1]
-    #             self.vertForce += self.dir*centerDist
-
-
-# Ball deflection:
-# The farther above the center of the paddle it hits, the biggger of an angle 
-# upwards it goes
-# Opposite for below center

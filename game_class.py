@@ -140,7 +140,9 @@ class Game:
                 
     
     def start_update(self):
-        pass
+        if self.player.score != 0 or self.ai.score != 0:
+            self.player.score = 0
+            self.ai.score = 0
 
     def start_draw(self):
         self.screen.fill(BLACK)

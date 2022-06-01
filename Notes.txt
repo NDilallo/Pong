@@ -3,7 +3,6 @@ Missing Pieces (vital):
 
 
 Features to Add:
-    Music/Sound Effects***? (with option to turn off music on main menu)
 
     Easy/Medium/Hard selection (ai base speed and reaction time)
 
@@ -17,7 +16,7 @@ Features to Add:
 
 Bugs to Fix:
     Hitting ball with the top of your player model
-    Ball stuck in ceiling/floor
+    Pressing escape when ball respawns
 
 
 Clean up code:
